@@ -33,17 +33,23 @@ function render() {
 function renderTestsList() {
   const data = JSON.parse(localStorage.getItem('data'));
 
-  let renderedList = `<ul>`;
-  renderedList += data.tests
+  const testsList = data.tests
     .map(item => {
       return `
-      <li><a href="/#/test/${item.id}">${item.name}</a></li>
+      <li><div><a href="/#/test/${item.id}">${item.name}</a></div></li>
       `;
     })
     .join('');
-  renderedList += `</ul>`;
 
-  document.querySelector('main').innerHTML = renderedList;
+  const testsListContainer = `
+    <div>
+      <ul>
+        ${testsList}
+      </ul>
+    </div>
+  `;
+
+  document.querySelector('main').innerHTML = testsListContainer;
 }
 
 function renderTest(itemId) {
@@ -91,6 +97,9 @@ function startTest(itemId) {
     <div class="test__counter">
       1 of 15
     </div>
+    <div class="test__timer">
+      ${stringifyTime(testObject.time)}:00
+    </div>
     <div class="question">
 
     </div>
@@ -99,6 +108,37 @@ function startTest(itemId) {
 
   document.querySelector('main').innerHTML = testTemplate;
   renderQuestion(questionsGenerator);
+  startTimer();
+}
+
+function stringifyTime(time) {
+  return Number(time) < 10 ? '0' + time : time;
+}
+
+function startTimer() {
+  let timer = setInterval(() => {
+    // get current timer time
+    let newTime, seconds, minutes;
+    let curTime = String(document.querySelector('.test__timer').innerHTML).split(':');
+    minutes = Number(curTime[0]);
+    seconds = Number(curTime[1]);
+    // stop timer if time runs out
+    if(minutes <= 0 && seconds <= 0) {
+      clearInterval(timer);
+      showResults();
+      return;
+    }
+    // subtract one second
+    if(seconds == 0) {
+      seconds = 59;
+      minutes--;
+    } else {
+      seconds--;
+    }
+    newTime = stringifyTime(minutes) + ':' + stringifyTime(seconds);
+
+    document.querySelector('.test__timer').innerHTML = newTime;
+  }, 1000);
 }
 
 function createGenerator(itemsArray) {
@@ -110,13 +150,17 @@ function createGenerator(itemsArray) {
 }
 
 function renderQuestion(qGen) {
-  const questionObject = qGen.next().value;
-  let questionAnswers = questionObject.incorrect_answers.slice();
-  questionAnswers.push(questionObject.correct_answer);
+  const questionObject = qGen.next();
+  if(questionObject.done) {
+    showResults();
+    return;
+  }
+  let questionAnswers = questionObject.value.incorrect_answers.slice();
+  questionAnswers.push(questionObject.value.correct_answer);
   questionAnswers = randomizeArray(questionAnswers);
   const question = `
     <div class="question__text">
-      ${questionObject.question}
+      ${questionObject.value.question}
     </div>
     <div class="question__answers">
       ${questionAnswers.map((item, index) => {
@@ -138,4 +182,9 @@ function renderQuestion(qGen) {
   `;
 
   document.querySelector('.question').innerHTML = question;
+}
+
+function showResults() {
+  // TODO: result window
+  document.querySelector('main').innerHTML = 'results';
 }

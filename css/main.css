@@ -30,12 +30,17 @@ main {
   width: 100%;
 }
 
-.test__counter {
+.test__counter,
+.test__timer {
   align-items: center;
   display: flex;
   justify-content: center;
   padding-top: 10px;
   width: 100%;
+}
+
+.test__timer {
+  font-size: 1.5em;
 }
 
 .question__text {
