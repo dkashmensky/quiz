@@ -100,6 +100,10 @@ main {
   background: #0f52ba;
 }
 
+.question__answers input[type=radio]:disabled + label > div:first-child {
+  filter: grayscale();
+}
+
 .question__buttons button {
   background-color: #d3d3d3;
   border: none;

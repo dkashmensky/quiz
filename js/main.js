@@ -107,8 +107,19 @@ function startTest(itemId) {
   `;
 
   document.querySelector('main').innerHTML = testTemplate;
+  storeTempTest(testObject.id);
   renderQuestion(questionsGenerator);
   startTimer();
+}
+
+function storeTempTest(testId) {
+  localStorage.removeItem('tempTest');
+  tempTestObject = {
+    userId: '1',
+    testId: testId,
+    questions: []
+  };
+  localStorage.setItem('tempTest', JSON.stringify(tempTestObject));
 }
 
 function stringifyTime(time) {
@@ -118,26 +129,30 @@ function stringifyTime(time) {
 function startTimer() {
   let timer = setInterval(() => {
     // get current timer time
-    let newTime, seconds, minutes;
-    let curTime = String(document.querySelector('.test__timer').innerHTML).split(':');
-    minutes = Number(curTime[0]);
-    seconds = Number(curTime[1]);
-    // stop timer if time runs out
-    if(minutes <= 0 && seconds <= 0) {
-      clearInterval(timer);
-      showResults();
-      return;
-    }
-    // subtract one second
-    if(seconds == 0) {
-      seconds = 59;
-      minutes--;
-    } else {
-      seconds--;
-    }
-    newTime = stringifyTime(minutes) + ':' + stringifyTime(seconds);
+    try {
+      let newTime, seconds, minutes;
+      let curTime = String(document.querySelector('.test__timer').innerHTML).split(':');
+      minutes = Number(curTime[0]);
+      seconds = Number(curTime[1]);
+      // stop timer if time runs out
+      if(minutes <= 0 && seconds <= 0) {
+        clearInterval(timer);
+        showResults();
+        return;
+      }
+      // subtract one second
+      if(seconds == 0) {
+        seconds = 59;
+        minutes--;
+      } else {
+        seconds--;
+      }
+      newTime = stringifyTime(minutes) + ':' + stringifyTime(seconds);
 
-    document.querySelector('.test__timer').innerHTML = newTime;
+      document.querySelector('.test__timer').innerHTML = newTime;
+    } catch (e) {
+      clearInterval(timer);
+    }
   }, 1000);
 }
 
@@ -152,7 +167,7 @@ function createGenerator(itemsArray) {
 function renderQuestion(qGen) {
   const questionObject = qGen.next();
   if(questionObject.done) {
-    showResults();
+    storeTestInDb();
     return;
   }
   let questionAnswers = questionObject.value.incorrect_answers.slice();
@@ -177,14 +192,62 @@ function renderQuestion(qGen) {
         `;
       }).join('')}
     <div class="question__buttons">
-      <button type="button" onclick="renderQuestion(questionsGenerator)">NEXT</button>
+      <button type="button" onclick="disableAnswers(); storeAnswer('${questionObject.value.id}');">SUBMIT</button>
     </div>
   `;
 
   document.querySelector('.question').innerHTML = question;
 }
 
-function showResults() {
+function disableAnswers() {
+  const radios = document.querySelectorAll('input[name="radio-answers"]');
+  radios.forEach((elem) => {
+    elem.disabled = true;
+  });
+}
+
+function storeAnswer(questionId) {
+  const userAnswer = document.querySelector('input[name="radio-answers"]:checked + label > .question__answers-text').innerText;
+  let tempTestObject = JSON.parse(localStorage.getItem('tempTest'));
+  tempTestObject.questions.push({
+    question_id: questionId,
+    userAnswer: userAnswer
+  });
+  localStorage.setItem('tempTest', JSON.stringify(tempTestObject));
+  showNextBtn();
+}
+
+function storeTestInDb() {
+  const tempTestObject = JSON.parse(localStorage.getItem('tempTest'));
+  const data = JSON.parse(localStorage.getItem('data'));
+  data.passedTests.push(tempTestObject);
+  localStorage.setItem('data', JSON.stringify(data));
+  showResults(tempTestObject, data);
+}
+
+function showNextBtn() {
+  const nextBtn = `
+    <button type="button" onclick="renderQuestion(questionsGenerator);">
+      NEXT
+    </button>
+  `;
+  document.querySelector('.question__buttons').innerHTML = nextBtn;
+}
+
+function showResults(testResult, data) {
   // TODO: result window
-  document.querySelector('main').innerHTML = 'results';
+  //document.querySelector('main').innerHTML = 'results';
+  const testObject = data.tests.find((item) => item.id === testResult.testId);
+  const correctAnswers = testResult.questions.filter((item) => {
+    const question = data.questions.find((elem) => elem.id === item.question_id);
+    return item.userAnswer == question.correct_answer;
+  });
+  const resultString = `
+    <p>Total question count: ${testObject.question_ids.length}</p>
+    <p>Questions passed: ${testResult.questions.length}</p>
+    <p>Correct answers: ${correctAnswers.length}</p>
+    <p>Test time: </p>
+  `;
+  document.querySelector('main').innerHTML = resultString;
+  localStorage.removeItem('tempTest');
 }
