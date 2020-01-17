@@ -95,7 +95,9 @@ function startTest(itemId) {
       <!-- Progress bar -->
     </div>
     <div class="test__counter">
-      1 of 15
+      <span class="test__counter-quest"></span>
+      /
+      <span class="test__counter-total">${testQuestions.length}</span>
     </div>
     <div class="test__timer">
       ${stringifyTime(testObject.time)}:00
@@ -197,6 +199,19 @@ function renderQuestion(qGen) {
   `;
 
   document.querySelector('.question').innerHTML = question;
+  updateCounter();
+}
+
+function updateCounter() {
+  const currentCount = document.querySelector('.test__counter-quest');
+  const totalCount = document.querySelector('.test__counter-total');
+  if(currentCount.innerHTML === '') {
+    currentCount.innerHTML = '1';
+  } else {
+    currentCount.innerHTML = Number(currentCount.innerHTML) + 1;
+  }
+  newProgress = Math.floor((Number(currentCount.innerHTML)/Number(totalCount.innerHTML))*100);
+  document.querySelector('.test__progress').style.width = newProgress + '%';
 }
 
 function disableAnswers() {

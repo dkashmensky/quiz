@@ -27,7 +27,7 @@ main {
 .test__progress {
   background-color: #0ad48b;
   height: 10px;
-  width: 100%;
+  width: 0%;
 }
 
 .test__counter,
