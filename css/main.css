@@ -201,6 +201,51 @@ main {
   display: flex;
 }
 
+/* SLIDER */
+.slider {
+  position: relative;
+  width: 100%;
+}
+
+.slider__elem {
+  display: none;
+  overflow: hidden;
+  width: 100%;
+}
+
+.slider label {
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-block;
+  height: 15px;
+  margin: 0 5px;
+  width: 15px;
+}
+
+.slider label:hover {
+  background: grey;
+}
+
+.switchers {
+  bottom:20px;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
+.slider input:checked + .slider__elem {
+  display: block;
+}
+
+.slider input {
+  display: none;
+}
+
+.slider img {
+  width: 100%;
+}
+
 @media (min-width: 768px) {
   main {
     margin: auto;

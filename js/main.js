@@ -15,9 +15,13 @@ window.addEventListener('hashchange', render);
 window.addEventListener('load', render);
 
 function render() {
-  const path = window.location.hash.split('/');
-  const pageName = path[1];
-  const itemId = path[2];
+  const path = window.location.hash;
+  if(path === '') {
+    renderMain();
+    return;
+  }
+  const pageName = path.split('/')[1];
+  const itemId = path.split('/')[2];
 
   switch (pageName) {
     case 'tests-list':
@@ -26,9 +30,16 @@ function render() {
     case 'test':
       renderTest(itemId);
       break;
+    case 'stats':
+      renderStats();
+      break;
     default:
       break;
   }
+}
+
+function renderMain() {
+  document.querySelector('main').innerHTML = 'HOME';
 }
 
 function renderTestsList() {
