@@ -12,6 +12,7 @@
 })();
 
 window.addEventListener('hashchange', render);
+window.addEventListener('load', render);
 
 function render() {
   const path = window.location.hash.split('/');
@@ -102,6 +103,9 @@ function startTest(itemId) {
     <div class="test__timer">
       ${stringifyTime(testObject.time)}:00
     </div>
+    <div class="test__timer-hidden">
+      00:00
+    </div>
     <div class="question">
 
     </div>
@@ -119,6 +123,7 @@ function storeTempTest(testId) {
   tempTestObject = {
     userId: '1',
     testId: testId,
+    time: '0',
     questions: []
   };
   localStorage.setItem('tempTest', JSON.stringify(tempTestObject));
@@ -132,10 +137,13 @@ function startTimer() {
   let timer = setInterval(() => {
     // get current timer time
     try {
-      let newTime, seconds, minutes;
+      let newTime, newHiddenTime, seconds, minutes;
       let curTime = String(document.querySelector('.test__timer').innerHTML).split(':');
+      let hiddenTime = String(document.querySelector('.test__timer-hidden').innerHTML).split(':');
       minutes = Number(curTime[0]);
       seconds = Number(curTime[1]);
+      hiddenMinutes = Number(hiddenTime[0]);
+      hiddenSeconds = Number(hiddenTime[1]);
       // stop timer if time runs out
       if(minutes <= 0 && seconds <= 0) {
         clearInterval(timer);
@@ -151,7 +159,17 @@ function startTimer() {
       }
       newTime = stringifyTime(minutes) + ':' + stringifyTime(seconds);
 
+      //add for hidden
+      if(hiddenSeconds == 59) {
+        hiddenSeconds = 0;
+        hiddenMinutes++;
+      } else {
+        hiddenSeconds++
+      }
+      newHiddenTime = stringifyTime(hiddenMinutes) + ':' + stringifyTime(hiddenSeconds);
+
       document.querySelector('.test__timer').innerHTML = newTime;
+      document.querySelector('.test__timer-hidden').innerHTML = newHiddenTime;
     } catch (e) {
       clearInterval(timer);
     }
@@ -169,7 +187,7 @@ function createGenerator(itemsArray) {
 function renderQuestion(qGen) {
   const questionObject = qGen.next();
   if(questionObject.done) {
-    storeTestInDb();
+    showResults();
     return;
   }
   let questionAnswers = questionObject.value.incorrect_answers.slice();
@@ -215,6 +233,9 @@ function updateCounter() {
 }
 
 function disableAnswers() {
+  if(!isChecked()) {
+    return;
+  }
   const radios = document.querySelectorAll('input[name="radio-answers"]');
   radios.forEach((elem) => {
     elem.disabled = true;
@@ -222,22 +243,47 @@ function disableAnswers() {
 }
 
 function storeAnswer(questionId) {
-  const userAnswer = document.querySelector('input[name="radio-answers"]:checked + label > .question__answers-text').innerText;
+  if(!isChecked()) {
+    return;
+  }
+  const userAnswer = document.querySelector('input[name="radio-answers"]:checked + label > .question__answers-text');
   let tempTestObject = JSON.parse(localStorage.getItem('tempTest'));
   tempTestObject.questions.push({
     question_id: questionId,
-    userAnswer: userAnswer
+    userAnswer: userAnswer.innerText
   });
   localStorage.setItem('tempTest', JSON.stringify(tempTestObject));
+
+  const data = JSON.parse(localStorage.getItem('data'));
+  const questionObject = data.questions.find((item) => item.id === questionId);
+  if(questionObject != undefined) {
+    if(questionObject.correct_answer === userAnswer.innerText) {
+      userAnswer.classList.add('question__answers-text--correct');
+    } else {
+      userAnswer.classList.add('question__answers-text--wrong');
+      const allAnswers = document.querySelectorAll('input[name="radio-answers"] + label > .question__answers-text');
+      allAnswers.forEach((item) => {
+        if(questionObject.correct_answer === item.innerText) {
+          item.classList.add('question__answers-text--correct');
+        }
+      });
+    }
+  }
+
   showNextBtn();
+}
+
+function isChecked() {
+   return document.querySelector('input[name="radio-answers"]:checked') != null;
 }
 
 function storeTestInDb() {
   const tempTestObject = JSON.parse(localStorage.getItem('tempTest'));
+  tempTestObject.time = document.querySelector('.test__timer-hidden').innerText;
   const data = JSON.parse(localStorage.getItem('data'));
   data.passedTests.push(tempTestObject);
   localStorage.setItem('data', JSON.stringify(data));
-  showResults(tempTestObject, data);
+  return tempTestObject;
 }
 
 function showNextBtn() {
@@ -249,9 +295,9 @@ function showNextBtn() {
   document.querySelector('.question__buttons').innerHTML = nextBtn;
 }
 
-function showResults(testResult, data) {
-  // TODO: result window
-  //document.querySelector('main').innerHTML = 'results';
+function showResults() {
+  testResult = storeTestInDb();
+  const data = JSON.parse(localStorage.getItem('data'));
   const testObject = data.tests.find((item) => item.id === testResult.testId);
   const correctAnswers = testResult.questions.filter((item) => {
     const question = data.questions.find((elem) => elem.id === item.question_id);
@@ -261,7 +307,7 @@ function showResults(testResult, data) {
     <p>Total question count: ${testObject.question_ids.length}</p>
     <p>Questions passed: ${testResult.questions.length}</p>
     <p>Correct answers: ${correctAnswers.length}</p>
-    <p>Test time: </p>
+    <p>Test time: ${testResult.time}</p>
   `;
   document.querySelector('main').innerHTML = resultString;
   localStorage.removeItem('tempTest');

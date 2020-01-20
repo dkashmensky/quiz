@@ -43,24 +43,42 @@ main {
   font-size: 1.5em;
 }
 
+.test__timer-hidden {
+  display: none;
+}
+
 .question__text {
   font-size: 1.5em;
   padding: 10px;
 }
 
 .question__answers {
-  padding: 10px 0;
+  padding-top: 10px;
 }
 
-.question__answers > div {
+.question__answers > div:not(.question__buttons) {
   align-items: center;
   display: flex;
   padding: 10px;
 }
 
+.question__buttons {
+  padding-top: 20px;
+}
+
 .question__answers-text {
   font-size: 1.1em;
   padding-left: 10px;
+}
+
+.question__answers-text--wrong {
+  color: red;
+  font-weight: bold;
+}
+
+.question__answers-text--correct {
+  color: #0ad48b;
+  font-weight: bold;
 }
 
 .question__answers input[type=radio] {
