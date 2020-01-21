@@ -33,6 +33,9 @@ function render() {
     case 'auth':
       renderAuth();
       break;
+    case 'register':
+      renderRegister();
+      break;
     default:
       renderMain();
       break;
@@ -98,6 +101,9 @@ function renderAuth() {
       <div>
         <button onclick="logUser();">Log In</button>
       </div>
+      <div>
+        <a href="/#/register">Don't have an account? Sign up!</a>
+      </div>
       <div class="login-error">
 
       </div>
@@ -105,6 +111,40 @@ function renderAuth() {
   `;
 
   document.querySelector('main').innerHTML = auth;
+}
+
+function renderRegister() {
+  const register = `
+    <section>
+      <div>
+        Please fill out the form
+      </div>
+      <div>
+        <div>Fullname</div>
+        <input type="text" value="" placeholder="Your Fullname" id="fullname">
+      </div>
+      <div>
+        <div>Username</div>
+        <input type="text" value="" placeholder="Your Username" id="username">
+      </div>
+      <div>
+        <div>Password</div>
+        <input type="password" value="" placeholder="Your Password" id="password">
+      </div>
+      <div>
+        <div>Password</div>
+        <input type="password" value="" placeholder="Confirm Password" id="password-confirm">
+      </div>
+      <div>
+        <button onclick="regUser();">Sign Up</button>
+      </div>
+      <div class="reg-error">
+
+      </div>
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = register;
 }
 
 function renderMain() {
@@ -177,7 +217,7 @@ function logUser() {
   if(username === '' || password === '') {
     document.querySelector('.login-error').innerHTML = `
       Please fill username and password fields
-    `
+    `;
     return;
   }
 
@@ -185,7 +225,7 @@ function logUser() {
   if(user === undefined) {
     document.querySelector('.login-error').innerHTML = `
       Wrong username or password. Please try again.
-    `
+    `;
     return;
   }
 
@@ -195,7 +235,7 @@ function logUser() {
   } else {
     document.querySelector('.login-error').innerHTML = `
       Wrong username or password. Please try again.
-    `
+    `;
     return;
   }
 }
@@ -203,6 +243,51 @@ function logUser() {
 function logoutUser() {
   sessionStorage.removeItem('userId');
   window.location = '/';
+}
+
+function regUser() {
+  const data = JSON.parse(localStorage.getItem('data'));
+  const fullname = document.querySelector('#fullname').value;
+  const username = document.querySelector('#username').value;
+  const password = document.querySelector('#password').value;
+  const passwordConfirm = document.querySelector('#password-confirm').value;
+
+  if(fullname === '' || username === '' || password === '' || passwordConfirm === '') {
+    document.querySelector('.login-error').innerHTML = `
+      Please fill all the fields.
+    `;
+    return;
+  }
+
+  const user = data.users.find((elem) => elem.username === username);
+  if(user != undefined && user != null) {
+    document.querySelector('.login-error').innerHTML = `
+      User with this username already exists.
+    `;
+    return;
+  }
+
+  if(password != passwordConfirm) {
+    document.querySelector('.login-error').innerHTML = `
+      Passwords don't match
+    `;
+    return;
+  }
+
+  data.users.push({
+    id: getNewId(data),
+    name: fullname,
+    username: username,
+    password: password,
+    avatar: ''
+  });
+  localStorage.setItem('data', JSON.stringify(data));
+  window.location = '/#/auth';
+}
+
+function getNewId(data) {
+  const users = data.users.slice().sort((elem1, elem2) => elem2.id - elem1.id);
+  return String(Number(users.shift().id) + 1);
 }
 
 function randomizeArray(itemsArray) {
@@ -258,7 +343,7 @@ function startTest(itemId) {
 function storeTempTest(testId) {
   localStorage.removeItem('tempTest');
   tempTestObject = {
-    userId: '1',
+    userId: getUser(),
     testId: testId,
     time: '0',
     questions: []
