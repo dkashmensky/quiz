@@ -11,15 +11,12 @@
   }
 })();
 
-window.addEventListener('hashchange', render);
 window.addEventListener('load', render);
+window.addEventListener('hashchange', render);
 
 function render() {
+  renderHeader();
   const path = window.location.hash;
-  if(path === '') {
-    renderMain();
-    return;
-  }
   const pageName = path.split('/')[1];
   const itemId = path.split('/')[2];
 
@@ -33,9 +30,81 @@ function render() {
     case 'stats':
       renderStats();
       break;
+    case 'auth':
+      renderAuth();
+      break;
     default:
+      renderMain();
       break;
   }
+}
+
+function renderHeader() {
+  let authInfo = '';
+  const user = getUser();
+  if(user === undefined || user === null) {
+    authInfo = `
+      <a href="/#/auth">Sign In</a>
+    `;
+  } else {
+    authInfo = getUserPanel(user);
+  }
+
+  const header = `
+  <div class="menu-switch">
+    <ul class="main-menu">
+      <li>
+        <a href="/#/tests-list">Tests List</a>
+        <ul class=main-menu__sub>
+          <li>Sub-element 1</li>
+          <li>Sub-element 2</li>
+          <li>Sub-element 3</li>
+        </ul>
+      </li>
+      <li>Element 2</li>
+      <li>Element 3</li>
+      <li>Element 4</li>
+      <li>Element 5</li>
+    </ul>
+  </div>
+  <div class="auth-info">
+    ${authInfo}
+  </div>
+  `;
+
+  document.querySelector('header').innerHTML = header;
+}
+
+function renderAuth() {
+  const user = getUser();
+  if(user != null && user != undefined) {
+    window.location = '/';
+    return;
+  }
+
+  const auth = `
+    <section>
+      <div>
+        Please enter your username and password
+      </div>
+      <div>
+        <div></div>
+        <input type="text" value="" placeholder="Your Username" id="username">
+      </div>
+      <div>
+        <div></div>
+        <input type="password" value="" placeholder="Your Password" id="password">
+      </div>
+      <div>
+        <button onclick="logUser();">Log In</button>
+      </div>
+      <div class="login-error">
+
+      </div>
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = auth;
 }
 
 function renderMain() {
@@ -77,6 +146,63 @@ function renderTest(itemId) {
   `;
 
   document.querySelector('main').innerHTML = renderedTest;
+}
+
+function getUser() {
+  return sessionStorage.getItem('userId');
+}
+
+function getUserPanel(userId) {
+  const data = JSON.parse(localStorage.getItem('data'));
+  const user = data.users.find((elem) => elem.id === userId);
+
+  return `
+    <div class="auth-info__pic">
+      <img src="/res/img/account.png">
+    </div>
+    <div class="auth-info__name">
+      ${user.name}
+    </div>
+    <div class="auth-info__logout">
+      <img src="/res/img/logout.png" onclick="logoutUser();">
+    </div>
+  `;
+}
+
+function logUser() {
+  const data = JSON.parse(localStorage.getItem('data'));
+  const username = document.querySelector('#username').value;
+  const password = document.querySelector('#password').value;
+
+  if(username === '' || password === '') {
+    document.querySelector('.login-error').innerHTML = `
+      Please fill username and password fields
+    `
+    return;
+  }
+
+  user = data.users.find((elem) => elem.username === username);
+  if(user === undefined) {
+    document.querySelector('.login-error').innerHTML = `
+      Wrong username or password. Please try again.
+    `
+    return;
+  }
+
+  if(user.password === password) {
+    sessionStorage.setItem('userId', user.id);
+    window.location = '/';
+  } else {
+    document.querySelector('.login-error').innerHTML = `
+      Wrong username or password. Please try again.
+    `
+    return;
+  }
+}
+
+function logoutUser() {
+  sessionStorage.removeItem('userId');
+  window.location = '/';
 }
 
 function randomizeArray(itemsArray) {

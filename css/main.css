@@ -10,12 +10,37 @@ body {
 
 header {
   background-color: grey;
+  display: flex;
   height: 60px;
+  justify-content: space-between;
   width: 100%;
 }
 
 main {
   padding: 10px;
+}
+
+.auth-info {
+  align-items: center;
+  display: flex;
+  padding-right: 20px;
+}
+
+.auth-info__name {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 150px;
+  padding-left: 20px;
+}
+
+.auth-info__pic img {
+  width: 40px;
+}
+
+.auth-info__logout img {
+  cursor: pointer;
+  padding-left: 20px;
+  width: 25px;
 }
 
 .test {
