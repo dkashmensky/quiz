@@ -36,6 +36,9 @@ function render() {
     case 'register':
       renderRegister();
       break;
+    case 'stats':
+      renderStats();
+      break;
     default:
       renderMain();
       break;
@@ -188,6 +191,45 @@ function renderTest(itemId) {
   document.querySelector('main').innerHTML = renderedTest;
 }
 
+function renderStats() {
+  const user = getUser();
+  if(user == null || user == undefined) {
+    window.location = '/';
+    return;
+  }
+
+  const data = JSON.parse(localStorage.getItem('data'));
+  const passedTests = data.passedTests.filter((elem) => elem.userId === user);
+  const testHistory = passedTests
+    .map((elem) => {
+      return '';
+    })
+    .join('');
+
+  const stats = `
+  <section>
+    <div>
+      <h1>History</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${testHistory}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  `;
+
+  document.querySelector('main').innerHTML = stats;
+}
+
 function getUser() {
   return sessionStorage.getItem('userId');
 }
@@ -201,7 +243,7 @@ function getUserPanel(userId) {
       <img src="/res/img/account.png">
     </div>
     <div class="auth-info__name">
-      ${user.name}
+      <a href="/#/stats">${user.name}</a>
     </div>
     <div class="auth-info__logout">
       <img src="/res/img/logout.png" onclick="logoutUser();">
@@ -346,7 +388,8 @@ function storeTempTest(testId) {
     userId: getUser(),
     testId: testId,
     time: '0',
-    questions: []
+    questions: [],
+    score: '0'
   };
   localStorage.setItem('tempTest', JSON.stringify(tempTestObject));
 }
@@ -500,9 +543,17 @@ function isChecked() {
 }
 
 function storeTestInDb() {
-  const tempTestObject = JSON.parse(localStorage.getItem('tempTest'));
-  tempTestObject.time = document.querySelector('.test__timer-hidden').innerText;
   const data = JSON.parse(localStorage.getItem('data'));
+  const tempTestObject = JSON.parse(localStorage.getItem('tempTest'));
+
+  const correctAnswers = tempTestObject.questions.filter((item) => {
+    const question = data.questions.find((elem) => elem.id === item.question_id);
+    return item.userAnswer == question.correct_answer;
+  });
+  const testObject = data.tests.find((item) => item.id === tempTestObject.testId);
+
+  tempTestObject.score = Math.floor((correctAnswers.length / testObject.question_ids.length) * 100);
+  tempTestObject.time = document.querySelector('.test__timer-hidden').innerText;
   data.passedTests.push(tempTestObject);
   localStorage.setItem('data', JSON.stringify(data));
   return tempTestObject;
@@ -530,6 +581,7 @@ function showResults() {
     <p>Questions passed: ${testResult.questions.length}</p>
     <p>Correct answers: ${correctAnswers.length}</p>
     <p>Test time: ${testResult.time}</p>
+    <p>Score: ${testResult.score}%</p>
   `;
   document.querySelector('main').innerHTML = resultString;
   localStorage.removeItem('tempTest');
