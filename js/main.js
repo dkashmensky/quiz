@@ -60,17 +60,16 @@ function renderHeader() {
   <div class="menu-switch">
     <ul class="main-menu">
       <li>
-        <a href="/#/tests-list">Tests List</a>
-        <ul class=main-menu__sub>
-          <li>Sub-element 1</li>
-          <li>Sub-element 2</li>
-          <li>Sub-element 3</li>
-        </ul>
+        <a href="/">
+          <div>Home</div>
+        </a>
       </li>
-      <li>Element 2</li>
-      <li>Element 3</li>
-      <li>Element 4</li>
-      <li>Element 5</li>
+      <li><a href="/#/tests-list">Tests List</a>
+      <ul class=main-menu__sub>
+        <li>Sub-element 1</li>
+        <li>Sub-element 2</li>
+        <li>Sub-element 3</li>
+      </ul></li>
     </ul>
   </div>
   <div class="auth-info">
@@ -79,6 +78,13 @@ function renderHeader() {
   `;
 
   document.querySelector('header').innerHTML = header;
+
+  document.querySelector('.menu-switch').addEventListener('click', () => {
+    document.querySelector('.main-menu').style.display = 'flex';
+  });
+  document.querySelector('.menu-switch').addEventListener('blur', () => {
+    document.querySelector('.main-menu').style.display = 'none';
+  });
 }
 
 function renderAuth() {
@@ -429,7 +435,7 @@ function startTimer() {
         hiddenSeconds = 0;
         hiddenMinutes++;
       } else {
-        hiddenSeconds++
+        hiddenSeconds++;
       }
       newHiddenTime = stringifyTime(hiddenMinutes) + ':' + stringifyTime(hiddenSeconds);
 
