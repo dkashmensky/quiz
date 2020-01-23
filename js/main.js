@@ -48,12 +48,25 @@ function render() {
 function renderHeader() {
   let authInfo = '';
   const user = getUser();
+  let menuItems = '';
   if(user === undefined || user === null) {
     authInfo = `
-      <a href="/#/auth">Sign In</a>
+      <a href="/#/auth">
+        <button class="login-btn">Log in</button>
+      </a>
+      <a href="/#/register">
+        <button class="signup-btn">Sign up</button>
+      </a>
     `;
   } else {
     authInfo = getUserPanel(user);
+    menuItems += `
+      <li>
+        <a href="/#/stats">
+          <div>Statistics</div>
+        </a>
+      </li>
+    `;
   }
 
   const header = `
@@ -64,12 +77,15 @@ function renderHeader() {
           <div>Home</div>
         </a>
       </li>
-      <li><a href="/#/tests-list">Tests List</a>
-      <ul class=main-menu__sub>
-        <li>Sub-element 1</li>
-        <li>Sub-element 2</li>
-        <li>Sub-element 3</li>
-      </ul></li>
+      <li>
+        <a href="/#/tests-list">Tests List</a>
+        <ul class=main-menu__sub>
+          <li>Sub-element 1</li>
+          <li>Sub-element 2</li>
+          <li>Sub-element 3</li>
+        </ul>
+      </li>
+      ${menuItems}
     </ul>
   </div>
   <div class="auth-info">
@@ -78,12 +94,9 @@ function renderHeader() {
   `;
 
   document.querySelector('header').innerHTML = header;
-
-  document.querySelector('.menu-switch').addEventListener('click', () => {
-    document.querySelector('.main-menu').style.display = 'flex';
-  });
-  document.querySelector('.menu-switch').addEventListener('blur', () => {
-    document.querySelector('.main-menu').style.display = 'none';
+  document.querySelector('.menu-switch').addEventListener('click', function() {
+    document.querySelector('.main-menu').classList.toggle('visible');
+    console.log('menu');
   });
 }
 
@@ -157,7 +170,18 @@ function renderRegister() {
 }
 
 function renderMain() {
-  document.querySelector('main').innerHTML = 'HOME';
+  let homepage = `
+    <section>
+      <div>
+        Recently added
+      </div>
+      <div>
+
+      </div>
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = homepage;
 }
 
 function renderTestsList() {
@@ -249,7 +273,7 @@ function getUserPanel(userId) {
       <img src="/res/img/account.png">
     </div>
     <div class="auth-info__name">
-      <a href="/#/stats">${user.name}</a>
+      ${user.name}
     </div>
     <div class="auth-info__logout">
       <img src="/res/img/logout.png" onclick="logoutUser();">
@@ -334,7 +358,9 @@ function regUser() {
 }
 
 function getNewId(data) {
-  const users = data.users.slice().sort((elem1, elem2) => elem2.id - elem1.id);
+  const users = data.users
+    .slice()
+    .sort((elem1, elem2) => elem2.id - elem1.id);
   return String(Number(users.shift().id) + 1);
 }
 

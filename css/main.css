@@ -18,7 +18,11 @@ header {
 }
 
 main {
-  padding: 10px;
+  height: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%
 }
 
 .auth-info {
@@ -28,8 +32,10 @@ main {
 }
 
 .auth-info__name {
+  color: #8854c0;
   display: flex;
   flex-wrap: wrap;
+  font-weight: bold;
   max-width: 150px;
   padding-left: 20px;
 }
@@ -45,9 +51,7 @@ main {
 }
 
 .test {
-  border: 1px solid #000;
-  border-radius: 5px;
-  overflow: hidden;
+
 }
 
 .test__progress {
@@ -151,7 +155,7 @@ main {
 .question__buttons button {
   background-color: #d3d3d3;
   border: none;
-  border-radius: 0 0 5px 5px;
+  /* border-radius: 0 0 5px 5px; */
   font-family: "Roboto Light";
   font-size: 1.5em;
   padding: 20px 0;
@@ -217,12 +221,43 @@ main {
   width: 100%;
 }
 
-.menu-switch:hover > .main-menu {
+/* .menu-switch:hover > .main-menu {
   display: flex;
-}
+} */
 
 .main-menu li:hover > ul {
   display: flex;
+}
+
+.visible {
+  display: flex;
+}
+
+.login-btn {
+  background: #e4e4e4;
+  border: none;
+  border-radius: 5px;
+  color: #3f3f3f;
+  font-weight: bold;
+  margin-right: 20px;
+  padding: 5px 10px;
+}
+
+.login-btn:hover {
+  background: #d7d7d7;
+}
+
+.signup-btn {
+  background: #8854c0;
+  border: none;
+  border-radius: 5px;
+  color: #ececec;
+  font-weight: bold;
+  padding: 5px 10px;
+}
+
+.signup-btn:hover {
+  opacity: 0.9;
 }
 
 /* SLIDER */
@@ -273,7 +308,7 @@ main {
 @media (min-width: 768px) {
   main {
     margin: auto;
-    max-width: 1024px;
+    max-width: 1366px;
   }
 
   .menu-switch {
