@@ -170,16 +170,41 @@ function renderRegister() {
 }
 
 function renderMain() {
-  let homepage = `
-    <section>
-      <div>
-        Recently added
-      </div>
-      <div>
+  const data = JSON.parse(localStorage.getItem('data'));
 
-      </div>
-    </section>
-  `;
+  const homepage = data.categories
+    .map((cat) => {
+      const testsByCat = data.tests.filter((test) => {
+        return test.category_id === cat.id;
+      });
+
+      const testsMarkup = testsByCat
+        .map((test) => {
+          return `
+            <div>
+              <a href="/#/test/${test.id}">
+                <div>
+                  <img src="${cat.img}">
+                </div>
+                <div>
+                  ${test.name}
+                </div>
+              </a>
+            </div>
+          `;
+        })
+        .join('');
+
+      return `
+        <section>
+          <div>
+            <h1>${cat.name}</h1>
+          </div>
+          ${testsMarkup}
+        </section>
+      `;
+    })
+    .join('');
 
   document.querySelector('main').innerHTML = homepage;
 }
