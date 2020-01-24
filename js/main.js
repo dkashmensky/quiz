@@ -12,17 +12,17 @@
 })();
 
 window.addEventListener('load', render);
-window.addEventListener('hashchange', render);
+window.addEventListener('popstate', render);
 
 function render() {
   renderHeader();
-  const path = window.location.hash;
+  const path = window.location.pathname;
   const pageName = path.split('/')[1];
   const itemId = path.split('/')[2];
 
   switch (pageName) {
     case 'tests-list':
-      renderTestsList();
+      renderTestsList(itemId);
       break;
     case 'test':
       renderTest(itemId);
@@ -45,24 +45,33 @@ function render() {
   }
 }
 
+function navigate(path, event) {
+  //event.preventDefault();
+  window.history.pushState(
+    {},
+    path,
+    window.location.origin + path
+  );
+}
+
 function renderHeader() {
   let authInfo = '';
   const user = getUser();
   let menuItems = '';
   if(user === undefined || user === null) {
     authInfo = `
-      <a href="/#/auth">
-        <button class="login-btn">Log in</button>
+      <a href="" onclick="navigate('/auth', event)">
+        <button class="grey-btn">Log in</button>
       </a>
-      <a href="/#/register">
-        <button class="signup-btn">Sign up</button>
+      <a href="" onclick="navigate('/register', event)">
+        <button class="purple-btn">Sign up</button>
       </a>
     `;
   } else {
     authInfo = getUserPanel(user);
     menuItems += `
       <li>
-        <a href="/#/stats">
+        <a href="" onclick="navigate('/stats')">
           <div>Statistics</div>
         </a>
       </li>
@@ -73,12 +82,12 @@ function renderHeader() {
   <div class="menu-switch">
     <ul class="main-menu">
       <li>
-        <a href="/">
+        <a href="" onclick="navigate('/')">
           <div>Home</div>
         </a>
       </li>
       <li>
-        <a href="/#/tests-list">Tests List</a>
+        <a href="" onclick="navigate('/tests-list')">Tests List</a>
         <ul class=main-menu__sub>
           <li>Sub-element 1</li>
           <li>Sub-element 2</li>
@@ -124,7 +133,7 @@ function renderAuth() {
         <button onclick="logUser();">Log In</button>
       </div>
       <div>
-        <a href="/#/register">Don't have an account? Sign up!</a>
+        <a href="" onclick="navigate('/register')">Don't have an account? Sign up!</a>
       </div>
       <div class="login-error">
 
@@ -174,19 +183,23 @@ function renderMain() {
 
   const homepage = data.categories
     .map((cat) => {
-      const testsByCat = data.tests.filter((test) => {
-        return test.category_id === cat.id;
-      });
+      let testsByCat = data.tests
+        .reverse()
+        .filter((test) => {
+          return test.category_id === cat.id;
+        });
+
+      testsByCat = testsByCat.slice(0, 3);
 
       const testsMarkup = testsByCat
         .map((test) => {
           return `
-            <div>
-              <a href="/#/test/${test.id}">
-                <div>
+            <div class="category__test">
+              <a href="" onclick="navigate('/test/${test.id}')">
+                <div class="category__img-wrapper">
                   <img src="${cat.img}">
                 </div>
-                <div>
+                <div class="category__test-name">
                   ${test.name}
                 </div>
               </a>
@@ -197,10 +210,15 @@ function renderMain() {
 
       return `
         <section>
-          <div>
-            <h1>${cat.name}</h1>
+          <div class="category">
+            <div class="category__header">
+              <h1>${cat.name}</h1>
+              <a href="" onclick="navigate('/tests-list/${cat.id}')">
+                <button class="grey-btn">More</button>
+              </a>
+            </div>
+            ${testsMarkup}
           </div>
-          ${testsMarkup}
         </section>
       `;
     })
@@ -209,13 +227,14 @@ function renderMain() {
   document.querySelector('main').innerHTML = homepage;
 }
 
-function renderTestsList() {
+function renderTestsList(catId) {
   const data = JSON.parse(localStorage.getItem('data'));
+//  const category
 
   const testsList = data.tests
     .map(item => {
       return `
-      <li><div><a href="/#/test/${item.id}">${item.name}</a></div></li>
+      <li><div><a href="" onclick="navigate('/test/${item.id}')">${item.name}</a></div></li>
       `;
     })
     .join('');
@@ -379,7 +398,7 @@ function regUser() {
     avatar: ''
   });
   localStorage.setItem('data', JSON.stringify(data));
-  window.location = '/#/auth';
+  window.location = '/auth';
 }
 
 function getNewId(data) {

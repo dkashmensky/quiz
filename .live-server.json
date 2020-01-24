@@ -1,0 +1,6 @@
+{
+    "port": 8181,
+    "root": "/",
+    "open": true,
+    "file": "index.html"
+}

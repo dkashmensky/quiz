@@ -20,7 +20,6 @@ header {
 main {
   height: 100%;
   margin: 0 auto;
-  min-height: 100vh;
   overflow-x: hidden;
   width: 100%
 }
@@ -233,7 +232,7 @@ main {
   display: flex;
 }
 
-.login-btn {
+.grey-btn {
   background: #e4e4e4;
   border: none;
   border-radius: 5px;
@@ -243,11 +242,11 @@ main {
   padding: 5px 10px;
 }
 
-.login-btn:hover {
+.grey-btn:hover {
   background: #d7d7d7;
 }
 
-.signup-btn {
+.purple-btn {
   background: #8854c0;
   border: none;
   border-radius: 5px;
@@ -256,8 +255,69 @@ main {
   padding: 5px 10px;
 }
 
-.signup-btn:hover {
+.purple-btn:hover {
   opacity: 0.9;
+}
+
+.category {
+  padding: 20px 10px;
+}
+
+.category a {
+  text-decoration: none;
+}
+
+.category > div {
+  border-radius: 5px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.category__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.category__header button {
+  margin: 0;
+}
+
+.category__header h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.category__test:hover {
+  box-shadow: 0 5px 15px grey;
+}
+
+.category__test-name {
+  align-items: center;
+  background-color: #8854c0;
+  /* border-color: #e4e4e4;
+  border-style: solid;
+  border-width: 0 1px 1px 1px; */
+  color: #ececec;
+  display: flex;
+  font-size: 20px;
+  height: 40px;
+  justify-content: center;
+}
+
+.category__test-name a {
+
+}
+
+.category__img-wrapper {
+  align-items: center;
+  display: flex;
+  height: 150px;
+  overflow: hidden;
+}
+
+.category__img-wrapper img {
+  width: 100%;
 }
 
 /* SLIDER */
@@ -308,7 +368,7 @@ main {
 @media (min-width: 768px) {
   main {
     margin: auto;
-    max-width: 1366px;
+    max-width: 1280px;
   }
 
   .menu-switch {
