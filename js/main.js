@@ -5,8 +5,8 @@
   if(getData === undefined || getData === null) {
     fetch('/json/data.json')
       .then(response => response.json())
-      .then(json => {
-        localStorage.setItem('data', JSON.stringify(json));
+      .then((json) => {
+         localStorage.setItem('data', JSON.stringify(json));
       });
   }
 })();
@@ -20,8 +20,11 @@ function render() {
   const pageName = path.split('/')[1];
 
   switch (pageName) {
-    case 'categories':
+    case 'category':
       renderTestsList();
+      break;
+    case 'categories':
+      renderCategories();
       break;
     case 'test':
       renderTest();
@@ -35,8 +38,11 @@ function render() {
     case 'register':
       renderRegister();
       break;
-    case 'stats':
-      renderStats();
+    case 'alltests':
+      renderAllTests();
+      break;
+    case 'search':
+      renderSearch();
       break;
     default:
       renderMain();
@@ -44,7 +50,7 @@ function render() {
   }
 }
 
-function navigate(path, event) {
+function navigate(path) {
   //event.preventDefault();
   window.history.pushState(
     {},
@@ -54,6 +60,8 @@ function navigate(path, event) {
 }
 
 function renderHeader() {
+  const data = JSON.parse(localStorage.getItem('data'));
+
   let authInfo = '';
   const user = getUser();
   let menuItems = '';
@@ -77,6 +85,18 @@ function renderHeader() {
     `;
   }
 
+  const subCats = data.categories
+    .map((item) => {
+      return `
+        <li>
+          <a href="" onclick="navigate('/category?id=${item.id}')">
+            ${item.name}
+          </a>
+        </li>
+      `;
+    })
+    .join('');
+
   const header = `
   <div class="menu-switch">
     <ul class="main-menu">
@@ -88,10 +108,14 @@ function renderHeader() {
       <li>
         <a href="" onclick="navigate('/categories')">Categories</a>
         <ul class=main-menu__sub>
-          <li>Sub-element 1</li>
-          <li>Sub-element 2</li>
-          <li>Sub-element 3</li>
+          ${subCats}
         </ul>
+      </li>
+      <li>
+        <a href="" onclick="navigate('/alltests')">All tests</a>
+      </li>
+      <li>
+        <a href="" onclick="navigate('/search')">Search</a>
       </li>
       ${menuItems}
     </ul>
@@ -104,7 +128,6 @@ function renderHeader() {
   document.querySelector('header').innerHTML = header;
   document.querySelector('.menu-switch').addEventListener('click', function() {
     document.querySelector('.main-menu').classList.toggle('visible');
-    console.log('menu');
   });
 }
 
@@ -212,7 +235,7 @@ function renderMain() {
           <div class="category">
             <div class="category__header">
               <h1>${cat.name}</h1>
-              <a href="" onclick="navigate('/categories?id=${cat.id}')">
+              <a href="" onclick="navigate('/category?id=${cat.id}')">
                 <button class="grey-btn">More</button>
               </a>
             </div>
@@ -224,6 +247,146 @@ function renderMain() {
     .join('');
 
   document.querySelector('main').innerHTML = homepage;
+}
+
+function renderCategories() {
+  const data = JSON.parse(localStorage.getItem('data'));
+
+  const categoriesList = data.categories
+    .map((item) => {
+      return `
+        <div class="category__test">
+          <a href="" onclick="navigate('/category?id=${item.id}')">
+            <div class="category__img-wrapper">
+              <img src="${item.img}">
+            </div>
+            <div class="category__test-name">
+              ${item.name}
+            </div>
+          </a>
+        </div>
+      `;
+    })
+    .join('');
+
+  const categoriesMarkup = `
+    <section>
+      <div class="category">
+        <div class="category__header">
+          <h1>Categories</h1>
+        </div>
+        ${categoriesList}
+      </div>
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = categoriesMarkup;
+}
+
+function renderAllTests() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const page = searchParams.get('page') != null ? Number(searchParams.get('page')) : 1;
+  const data = JSON.parse(localStorage.getItem('data'));
+
+  const filteredTests = filterTests(data.tests, page);
+
+  const testsList = filteredTests
+    .map(item => {
+      return `
+      <li>
+        <a href="" onclick="navigate('/test?id=${item.id}')">
+          <div class="test-cat__item">
+            ${item.name}
+          </div>
+        </a>
+      </li>
+      `;
+    })
+    .join('');
+
+  const paging = getPaging(page, data.tests);
+
+  const testsListContainer = `
+    <section>
+      <div class="test-cat">
+        <h1>All tests</h1>
+        <ul>
+          ${testsList}
+        </ul>
+      </div>
+      ${paging}
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = testsListContainer;
+}
+
+function getPaging(page, items, itemsPerPage = 10) {
+  // TODO: REFACTOR IF POSSIBLE
+  const pagesCount = Math.ceil(items.length / itemsPerPage);
+
+  const pageBack = page - 1 > 0 ? page - 1 : 1;
+  const pageLast = pagesCount;
+  const pageNext = page + 1 <= pagesCount ? page + 1 : pagesCount;
+
+  const pagesBefore = `
+    ${page - 2 > 0 ? `<div><a href="" onclick="navigate('/alltests?page=${page - 2}')">${page - 2}</a></div>` : ``}
+    ${page - 1 > 0 ? `<div><a href="" onclick="navigate('/alltests?page=${page - 1}')">${page - 1}</a></div>` : ``}
+  `;
+
+  const pagesAfter = `
+    ${page + 1 <= pagesCount ? `<div><a href="" onclick="navigate('/alltests?page=${page + 1}')">${page + 1}</a></div>` : ``}
+    ${page + 2 <= pagesCount ? `<div><a href="" onclick="navigate('/alltests?page=${page + 2}')">${page + 2}</a></div>` : ``}
+  `;
+
+  return `
+    <div class="paging-container">
+      <div class="test-paging">
+        <div class="test-paging__first">
+          <a href="" onclick="navigate('/alltests?page=1')">
+            <img src="/res/img/first.png">
+          </a>
+        </div>
+        <div class="test-paging__back">
+          <a href="" onclick="navigate('/alltests?page=${pageBack}')">
+            <img src="/res/img/back.png">
+          </a>
+        </div>
+        <div class="test-paging__pages">
+          ${pagesBefore}
+          <div class="active-page"><a href="" onclick="navigate('/alltests?page=${page}')">${page}</a></div>
+          ${pagesAfter}
+        </div>
+        <div class="test-paging__next">
+          <a href="" onclick="navigate('/alltests?page=${pageNext}')">
+            <img src="/res/img/next.png">
+          </a>
+        </div>
+        <div class="test-paging__last">
+          <a href="" onclick="navigate('/alltests?page=${pageLast}')">
+            <img src="/res/img/last.png">
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterTests(items, pageId, itemsPerPage = 10) {
+  if(pageId < 1) {
+    pageId = 1;
+  }
+
+  const filtered = items.filter((item, index) => {
+    const page = Math.floor(index / itemsPerPage);
+    return page === pageId - 1;
+  });
+
+  if(filtered.length <= 0) {
+    return filterTests(items, 1);
+  }
+
+  return filtered;
 }
 
 function renderTestsList() {
@@ -263,18 +426,188 @@ function renderTestsList() {
   document.querySelector('main').innerHTML = testsListContainer;
 }
 
+function renderSearch() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const searchQuery = searchParams.get('query');
+  const category = searchParams.get('cat');
+  const data = JSON.parse(localStorage.getItem('data'));
+
+  const catOptions = data.categories
+    .map((item) => {
+      return `
+        <option value="${item.id}"${category && category == item.id ? ' selected' : ''}>
+          ${item.name}
+        </option>
+      `;
+    })
+    .join('');
+
+  const results = getSearchResults(data, searchQuery, category);
+
+  const searchMarkup = `
+    <section>
+      <div class="search-container">
+        <div>
+          <h1>Search</h1>
+        </div>
+        <div>
+          <form class="search-form" action="">
+            <div>
+              <label for="search-field">Search query: </label>
+              <input type="text" id="search-field" value="${searchQuery ? searchQuery : ''}">
+            </div>
+            <div>
+              <label for="search-cat">In category: </label>
+              <select id="search-cat" value="">
+                <option value=""${!category ? ' selected' : ''}></option>
+                ${catOptions}
+              </select>
+            </div>
+            <div>
+              <button type="submit" class="purple-btn">Search</button>
+            </div>
+          </form>
+        </div>
+        <div class="search-result">
+          <h2>Results:</h2>
+          ${results}
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = searchMarkup;
+
+  document.querySelector('.search-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    navigate('/search?' + getSearchString());
+    renderSearch();
+  });
+}
+
+function getSearchString() {
+  let searchString = '';
+
+  searchString += `query=${document.querySelector('#search-field').value}`;
+  searchString += `&cat=${document.querySelector('#search-cat').value}`;
+
+  return searchString;
+}
+
+function getSearchResults(data, text, cat, notpassed) {
+  let result = '';
+  text = text ? text : '';
+  cat = cat ? cat : '';
+  notpassed = notpassed ? notpassed : false;
+
+  if(text == '' && cat == '') {
+    return '';
+  }
+
+  if(text != '') {
+    const queryCats = data.categories.filter((item) => {
+      return item.name.toLowerCase().includes(text.toLowerCase());
+    });
+
+    if(queryCats.length > 0) {
+      const catsResult = queryCats
+        .map((item) => {
+          return `
+            <li>
+              <a href="" onclick="navigate('/category?id=${item.id}')">
+                <div class="test-cat__item">
+                  ${item.name}
+                </div>
+              </a>
+            </li>
+          `;
+        })
+        .join('');
+
+      result += `
+        <div class="search-result-header">
+          <h2>Categories</h2>
+        </div>
+        <div class="test-cat">
+          <ul>
+            ${catsResult}
+          </ul>
+        </div>
+      `;
+    }
+  }
+
+  let queryTests = data.tests.filter((item) => {
+    return item.name.toLowerCase().includes(text.toLowerCase());
+  });
+
+  if(cat != '') {
+    queryTests = queryTests.filter((item) => {
+      return item.category_id == cat;
+    });
+  }
+
+  if(queryTests.length > 0) {
+    const testsResult = queryTests
+      .map((item) => {
+        return `
+          <li>
+            <a href="" onclick="navigate('/test?id=${item.id}')">
+              <div class="test-cat__item">
+                ${item.name}
+              </div>
+            </a>
+          </li>
+        `;
+      })
+      .join('');
+
+    result += `
+      <div class="search-result-header">
+        <h2>Tests</h2>
+      </div>
+      <div class="test-cat">
+        <ul>
+          ${testsResult}
+        </ul>
+      </div>
+    `;
+  }
+
+  if(result === '') {
+    result = 'Nothing found. Please change search parameters';
+  }
+
+  return result;
+}
+
 function renderTest() {
   const searchParams = new URLSearchParams(window.location.search);
   const itemId = searchParams.get('id');
   const data = JSON.parse(localStorage.getItem('data'));
   const testObject = data.tests.find(item => item.id === itemId);
+  const user = getUser();
+
+  let startInfo = `<button class="purple-btn" onclick="startTest('${testObject.id}')">Start</button>`;
+  if(user == null || user == undefined) {
+    startInfo = `Please log in to start test`;
+  }
 
   const renderedTest = `
-  <div>
-    <p>${testObject.name}</p>
-    <p>${testObject.desc}</p>
-    <p><button onclick="startTest('${testObject.id}')">Start</button></p>
-  </div>
+  <section>
+    <div class="test-container">
+      <div>
+        <h1>${testObject.name}</h1>
+      </div>
+      <div>
+        <h2>Description</h2>
+        <p>${testObject.desc}</p>
+      </div>
+      <div class="test-start">
+        ${startInfo}
+      </div>
+    </div>
+  </section>
   `;
 
   document.querySelector('main').innerHTML = renderedTest;
@@ -352,7 +685,7 @@ function logUser() {
     return;
   }
 
-  user = data.users.find((elem) => elem.username === username);
+  user = data.users.find((elem) => elem.username.toLowerCase() === username.toLowerCase());
   if(user === undefined) {
     document.querySelector('.login-error').innerHTML = `
       Wrong username or password. Please try again.
