@@ -18,14 +18,13 @@ function render() {
   renderHeader();
   const path = window.location.pathname;
   const pageName = path.split('/')[1];
-  const itemId = path.split('/')[2];
 
   switch (pageName) {
-    case 'tests-list':
-      renderTestsList(itemId);
+    case 'categories':
+      renderTestsList();
       break;
     case 'test':
-      renderTest(itemId);
+      renderTest();
       break;
     case 'stats':
       renderStats();
@@ -87,7 +86,7 @@ function renderHeader() {
         </a>
       </li>
       <li>
-        <a href="" onclick="navigate('/tests-list')">Tests List</a>
+        <a href="" onclick="navigate('/categories')">Categories</a>
         <ul class=main-menu__sub>
           <li>Sub-element 1</li>
           <li>Sub-element 2</li>
@@ -195,7 +194,7 @@ function renderMain() {
         .map((test) => {
           return `
             <div class="category__test">
-              <a href="" onclick="navigate('/test/${test.id}')">
+              <a href="" onclick="navigate('/test?id=${test.id}')">
                 <div class="category__img-wrapper">
                   <img src="${cat.img}">
                 </div>
@@ -213,7 +212,7 @@ function renderMain() {
           <div class="category">
             <div class="category__header">
               <h1>${cat.name}</h1>
-              <a href="" onclick="navigate('/tests-list/${cat.id}')">
+              <a href="" onclick="navigate('/categories?id=${cat.id}')">
                 <button class="grey-btn">More</button>
               </a>
             </div>
@@ -227,20 +226,34 @@ function renderMain() {
   document.querySelector('main').innerHTML = homepage;
 }
 
-function renderTestsList(catId) {
+function renderTestsList() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const catId = searchParams.get('id');
   const data = JSON.parse(localStorage.getItem('data'));
-//  const category
+  const category = data.categories.find((item) => {
+    return item.id === catId;
+  });
 
   const testsList = data.tests
+    .filter((item) => {
+      return item.category_id === catId;
+    })
     .map(item => {
       return `
-      <li><div><a href="" onclick="navigate('/test/${item.id}')">${item.name}</a></div></li>
+      <li>
+        <a href="" onclick="navigate('/test?id=${item.id}')">
+          <div class="test-cat__item">
+            ${item.name}
+          </div>
+        </a>
+      </li>
       `;
     })
     .join('');
 
   const testsListContainer = `
-    <div>
+    <div class="test-cat">
+      <h1>${category.name}</h1>
       <ul>
         ${testsList}
       </ul>
@@ -250,7 +263,9 @@ function renderTestsList(catId) {
   document.querySelector('main').innerHTML = testsListContainer;
 }
 
-function renderTest(itemId) {
+function renderTest() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const itemId = searchParams.get('id');
   const data = JSON.parse(localStorage.getItem('data'));
   const testObject = data.tests.find(item => item.id === itemId);
 
