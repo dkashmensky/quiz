@@ -268,7 +268,9 @@ h2 {
 .category,
 .search-container,
 .test-cat,
-.test-container {
+.test-container,
+.login-container,
+.reg-container {
   padding: 20px 10px;
 }
 
@@ -417,15 +419,17 @@ h2 {
   margin-bottom: 5px;
 }
 
-.search-form input[type=text],
-.search-form select {
+input[type=text],
+input[type=password],
+select {
   border: 1px solid #e4e4e4;
   border-radius: 5px;
   padding: 5px 10px;
 }
 
-.search-form input[type=text]:focus,
-.search-form select:focus {
+input[type=text]:focus,
+input[type=password]:focus,
+select:focus {
   border: 1px solid #8854c0;
 }
 
@@ -449,6 +453,38 @@ h2 {
   font-size: 20px;
   font-weight: bold;
   justify-content: center;
+}
+
+.login-container,
+.reg-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-container > div,
+.reg-container > div {
+  margin-bottom: 20px;
+}
+
+.login-form,
+.reg-form {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-form > div,
+.reg-form > div {
+  margin-bottom: 10px;
+}
+
+.login-error,
+.reg-error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
 }
 
 /* SLIDER */

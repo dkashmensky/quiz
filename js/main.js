@@ -140,64 +140,80 @@ function renderAuth() {
 
   const auth = `
     <section>
-      <div>
-        Please enter your username and password
-      </div>
-      <div>
-        <div></div>
-        <input type="text" value="" placeholder="Your Username" id="username">
-      </div>
-      <div>
-        <div></div>
-        <input type="password" value="" placeholder="Your Password" id="password">
-      </div>
-      <div>
-        <button onclick="logUser();">Log In</button>
-      </div>
-      <div>
-        <a href="" onclick="navigate('/register')">Don't have an account? Sign up!</a>
-      </div>
-      <div class="login-error">
+      <div class="login-container">
+        <div>
+          Please enter your username and password
+        </div>
+        <div>
+          <form class="login-form">
+            <div>
+              <input type="text" value="" placeholder="Your Username" id="username">
+            </div>
+            <div>
+              <input type="password" value="" placeholder="Your Password" id="password">
+            </div>
+            <div>
+              <button class="purple-btn">Log In</button>
+            </div>
+          </form>
+        </div>
+        <div>
+          <a href="" onclick="navigate('/register')">Don't have an account? Sign up!</a>
+        </div>
+        <div class="login-error">
 
+        </div>
       </div>
     </section>
   `;
 
   document.querySelector('main').innerHTML = auth;
+
+  document.querySelector('.login-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    logUser();
+  });
 }
 
 function renderRegister() {
   const register = `
     <section>
-      <div>
-        Please fill out the form
-      </div>
-      <div>
-        <div>Fullname</div>
-        <input type="text" value="" placeholder="Your Fullname" id="fullname">
-      </div>
-      <div>
-        <div>Username</div>
-        <input type="text" value="" placeholder="Your Username" id="username">
-      </div>
-      <div>
-        <div>Password</div>
-        <input type="password" value="" placeholder="Your Password" id="password">
-      </div>
-      <div>
-        <div>Password</div>
-        <input type="password" value="" placeholder="Confirm Password" id="password-confirm">
-      </div>
-      <div>
-        <button onclick="regUser();">Sign Up</button>
-      </div>
-      <div class="reg-error">
+      <div class="reg-container">
+        <div>
+          Please fill out the form to create an account
+        </div>
+        <div>
+          <form class="reg-form">
+            <div>
+              <input type="text" value="" placeholder="Your Fullname" id="fullname">
+            </div>
+            <div>
+              <input type="text" value="" placeholder="Your Username" id="username">
+            </div>
+            <div>
+              <input type="password" value="" placeholder="Your Password" id="password">
+            </div>
+            <div>
+              <input type="password" value="" placeholder="Confirm Password" id="password-confirm">
+            </div>
+            <div>
+              <button type="submit" class="purple-btn">Sign Up</button>
+            </div>
+          </form>
+        <div>
+        <div class="reg-error">
 
+        </div>
       </div>
     </section>
   `;
 
   document.querySelector('main').innerHTML = register;
+
+  document.querySelector('.reg-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    regUser();
+  });
 }
 
 function renderMain() {
@@ -717,7 +733,7 @@ function regUser() {
   const passwordConfirm = document.querySelector('#password-confirm').value;
 
   if(fullname === '' || username === '' || password === '' || passwordConfirm === '') {
-    document.querySelector('.login-error').innerHTML = `
+    document.querySelector('.reg-error').innerHTML = `
       Please fill all the fields.
     `;
     return;
@@ -725,14 +741,14 @@ function regUser() {
 
   const user = data.users.find((elem) => elem.username === username);
   if(user != undefined && user != null) {
-    document.querySelector('.login-error').innerHTML = `
+    document.querySelector('.reg-error').innerHTML = `
       User with this username already exists.
     `;
     return;
   }
 
   if(password != passwordConfirm) {
-    document.querySelector('.login-error').innerHTML = `
+    document.querySelector('.reg-error').innerHTML = `
       Passwords don't match
     `;
     return;
