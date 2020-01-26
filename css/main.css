@@ -70,7 +70,7 @@ h2 {
 }
 
 .test {
-
+  position: relative;
 }
 
 .test__progress {
@@ -94,6 +94,17 @@ h2 {
 
 .test__timer-hidden {
   display: none;
+}
+
+.test__close {
+  cursor: pointer;
+  position: absolute;
+  right: 25px;
+  top: 25px;
+}
+
+.test__close img {
+  width: 30px;
 }
 
 .question__text {

@@ -911,6 +911,9 @@ function startTest(itemId) {
 
   const testTemplate = `
   <section class="test">
+    <div class="test__close">
+      <img src="/res/img/close.png">
+    </div>
     <div class="test__progress">
       <!-- Progress bar -->
     </div>
@@ -932,6 +935,10 @@ function startTest(itemId) {
   `;
 
   document.querySelector('main').innerHTML = testTemplate;
+  document.querySelector('.test__close').addEventListener('click', () => {
+    window.location.reload();
+  });
+
   storeTempTest(testObject.id);
   renderQuestion(questionsGenerator);
   startTimer();
