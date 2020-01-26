@@ -192,5 +192,6 @@
       "password": "123",
       "avatar": ""
     }
-  ]
+  ],
+  "photos":["/res/gallery/photo_1.jpg","/res/gallery/photo_2.jpg","/res/gallery/photo_3.jpg"]
 }

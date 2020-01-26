@@ -44,6 +44,9 @@ function render() {
     case 'search':
       renderSearch();
       break;
+    case 'about':
+      renderAbout();
+      break;
     default:
       renderMain();
       break;
@@ -67,6 +70,9 @@ function renderHeader() {
   let menuItems = '';
   if(user === undefined || user === null) {
     authInfo = `
+      <a href="" onclick="navigate('/')" class="auth-info__home">
+        <img src="/res/img/home.png">
+      </a>
       <a href="" onclick="navigate('/auth', event)">
         <button class="grey-btn">Log in</button>
       </a>
@@ -101,8 +107,8 @@ function renderHeader() {
   <div class="menu-switch">
     <ul class="main-menu">
       <li>
-        <a href="" onclick="navigate('/')">
-          <div>Home</div>
+        <a href="" onclick="navigate('/about')">
+          <div>About Us</div>
         </a>
       </li>
       <li>
@@ -247,14 +253,14 @@ function renderMain() {
         .join('');
 
       return `
-        <section>
-          <div class="category">
-            <div class="category__header">
-              <h1>${cat.name}</h1>
-              <a href="" onclick="navigate('/category?id=${cat.id}')">
-                <button class="grey-btn">More</button>
-              </a>
-            </div>
+        <section class="category">
+          <div class="category__header">
+            <h1>${cat.name}</h1>
+            <a href="" onclick="navigate('/category?id=${cat.id}')">
+              <button class="grey-btn">More</button>
+            </a>
+          </div>
+          <div class="category-container">
             ${testsMarkup}
           </div>
         </section>
@@ -263,6 +269,110 @@ function renderMain() {
     .join('');
 
   document.querySelector('main').innerHTML = homepage;
+}
+
+function renderAbout() {
+  const data = JSON.parse(localStorage.getItem('data'));
+
+  const photos = data.photos
+    .map((item, index) => {
+      return `
+        <div class="gallery__photo${index == 0 ? ' active-photo' : ''}" id="photo-${index}">
+          <img src="${item}">
+        </div>
+      `;
+    })
+    .join('');
+
+  const switchers = data.photos
+    .map((item, index) => {
+      return `
+        <div class="gallery__mini${index == 0 ? ' active-mini' : ''}">
+          <img src="${item}" class="photo-${index}" onclick="switchPhoto(this)">
+        </div>
+      `;
+    })
+    .join('');
+
+  const about = `
+    <section>
+      <div class="about-container">
+        <div class="about-header">
+          <h1>About Us</h1>
+        </div>
+        <div>
+          We are educational company that provide courses and tests
+        </div>
+        <div class="gallery">
+          <div class="gallery__content">
+            ${photos}
+          </div>
+          <div class="gallery__switcher">
+            ${switchers}
+          </div>
+        </div>
+      </div>
+      <div class="contacts-container">
+        <div class="contacts-header">
+          <h1>Contacts</h1>
+        </div>
+        <div>
+          You can find our contact information and location map below
+        </div>
+        <div class="contacts__body">
+          <div class="contacts__map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2540.755213998221!2d30.51154060099725!3d50.44566002397757!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40d4ce5802407267%3A0x5b296e9450093a05!2sCoworking%20Platforma%20Leonardo!5e0!3m2!1sen!2sua!4v1580047652486!5m2!1sen!2sua" width="400" height="300" frameborder="0" style="border:0;" allowfullscreen=""></iframe>
+          </div>
+          <div class="contacts__email">
+            <div>
+              General inquiries:<br>
+              <a href="mailto:info@example.com">info@example.com</a>
+            </div>
+            <div>
+              Technical support:<br>
+              <a href="mailto:support@example.com">support@example.com</a>
+            </div>
+            <div>
+              Sales:<br>
+              <a href="mailto:sales@example.com">sales@example.com</a>
+            </div>
+          </div>
+          <div class="contacts__phone">
+            <div>
+              <div class="contacts__flag">
+                <img src="/res/img/ukraine.png">
+              </div>
+              <div>
+                <a href="tel:+380441234567">+380 44 123 4567</a>
+              </div>
+            </div>
+            <div>
+              <div class="contacts__flag">
+                <img src="/res/img/usa.png">
+              </div>
+              <div>
+                <a href="tel:+18881234567">+1 888 123 4567</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.querySelector('main').innerHTML = about;
+}
+
+function switchPhoto(elem) {
+  document.querySelectorAll('.gallery__photo').forEach((item) => {
+    item.classList.remove('active-photo');
+  });
+  document.querySelector('#' + elem.classList[0]).classList.add('active-photo');
+
+  document.querySelectorAll('.gallery__mini').forEach((item) => {
+    item.classList.remove('active-mini');
+  });
+  elem.parentElement.classList.add('active-mini');
 }
 
 function renderCategories() {
@@ -286,11 +396,11 @@ function renderCategories() {
     .join('');
 
   const categoriesMarkup = `
-    <section>
-      <div class="category">
-        <div class="category__header">
-          <h1>Categories</h1>
-        </div>
+    <section class="category">
+      <div class="category__header">
+        <h1>Categories</h1>
+      </div>
+      <div class="category-container">
         ${categoriesList}
       </div>
     </section>
@@ -466,7 +576,7 @@ function renderSearch() {
         <div>
           <h1>Search</h1>
         </div>
-        <div>
+        <div class="search-inputs">
           <form class="search-form" action="">
             <div>
               <label for="search-field">Search query: </label>
@@ -677,6 +787,11 @@ function getUserPanel(userId) {
   const user = data.users.find((elem) => elem.id === userId);
 
   return `
+    <div class="auth-info__home">
+      <a href="" onclick="navigate('/')">
+        <img src="/res/img/home.png">
+      </a>
+    </div>
     <div class="auth-info__pic">
       <img src="/res/img/account.png">
     </div>
@@ -1017,12 +1132,62 @@ function showResults() {
     return item.userAnswer == question.correct_answer;
   });
   const resultString = `
-    <p>Total question count: ${testObject.question_ids.length}</p>
-    <p>Questions passed: ${testResult.questions.length}</p>
-    <p>Correct answers: ${correctAnswers.length}</p>
-    <p>Test time: ${testResult.time}</p>
-    <p>Score: ${testResult.score}%</p>
+    <section>
+      <div class="result-container">
+        <div class="result-header">
+          <h1>Result</h1>
+        </div>
+        <div class="results">
+          <div class="results__elem">
+            <div class="results__text">
+              Total question count
+            </div>
+            <div class="results__round">
+              ${testObject.question_ids.length}
+            </div>
+          </div>
+          <div class="results__elem">
+            <div class="results__text">
+              Questions passed
+            </div>
+            <div class="results__round">
+              ${testResult.questions.length}
+            </div>
+          </div>
+          <div class="results__elem">
+            <div class="results__text">
+              Correct answers
+            </div>
+            <div class="results__round">
+              ${correctAnswers.length}
+            </div>
+          </div>
+          <div class="results__elem">
+            <div class="results__text">
+              Test time
+            </div>
+            <div class="results__round">
+              ${testResult.time}
+            </div>
+          </div>
+          <div class="results__elem">
+            <div class="results__text">
+              Your score
+            </div>
+            <div class="results__round">
+              ${testResult.score}%
+            </div>
+          </div>
+        </div>
+        <div>
+          <a href="" onclick="navigate('/alltests')">
+            <button class="purple-btn results-btn">Take another test</button>
+          </a>
+        </div>
+      </div>
+    </section>
   `;
+
   document.querySelector('main').innerHTML = resultString;
   localStorage.removeItem('tempTest');
 }
