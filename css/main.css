@@ -593,17 +593,21 @@ select:focus {
 }
 
 .contacts__phone {
+  align-items: center;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .contacts__phone > div {
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .contacts__email > div {
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
 .contacts__flag img {
@@ -773,12 +777,11 @@ select:focus {
   .category-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     margin-bottom: 15px;
   }
 
   .category-container > div {
-    margin-bottom: 5px;
+    margin: 4px 4px 0 0;
     width: 33%;
   }
 
