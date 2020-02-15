@@ -60,7 +60,7 @@ function renderHeader() {
     .join('');
 
   const header = `
-  <div class="menu-switch">
+  <nav class="menu-switch">
     <ul class="main-menu">
       <li>
         <a href="" onclick="navigate('/about')">
@@ -81,7 +81,7 @@ function renderHeader() {
       </li>
       ${menuItems}
     </ul>
-  </div>
+  </nav>
   <div class="auth-info">
     ${authInfo}
   </div>

@@ -21,7 +21,7 @@ header {
 main {
   height: 100%;
   margin: 0 auto;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
   padding-top: 60px;
   width: 100%
 }
@@ -809,6 +809,7 @@ select:focus {
     align-items: center;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     width: 25%;
   }
 
