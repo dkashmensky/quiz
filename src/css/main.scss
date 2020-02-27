@@ -1,12 +1,4 @@
 @import "reset.css";
-@font-face {
-  font-family: "Roboto Light";
-  src: url(../font/Roboto-Light.ttf);
-}
-
-body {
-  font-family: "Roboto Light";
-}
 
 header {
   background-color: #fff;
@@ -181,14 +173,13 @@ h2 {
 }
 
 .question__answers input[type=radio]:disabled + label > div:first-child {
-  filter: grayscale();
+  /*filter: grayscale();*/
 }
 
 .question__buttons button {
   background-color: #d3d3d3;
   border: none;
   /* border-radius: 0 0 5px 5px; */
-  font-family: "Roboto Light";
   font-size: 1.5em;
   padding: 20px 0;
   width: 100%;
@@ -572,7 +563,7 @@ select:focus {
 
 .gallery__mini {
   cursor: pointer;
-  filter: grayscale();
+  // filter: grayscale();
 }
 
 .active-mini {

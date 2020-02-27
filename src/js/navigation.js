@@ -1,5 +1,4 @@
-/*jshint esversion: 6 */
-function render() {
+export function render() {
   renderHeader();
   const path = window.location.pathname;
   const pageName = path.split('/')[1];
@@ -41,7 +40,7 @@ function render() {
   }
 }
 
-function navigate(path) {
+export function navigate(path) {
   //event.preventDefault();
   window.history.pushState(
     {},

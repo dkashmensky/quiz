@@ -1,4 +1,5 @@
-/*jshint esversion: 6 */
+import '../css/main.scss';
+
 window.addEventListener('load', render);
 window.addEventListener('popstate', render);
 
